@@ -1,0 +1,11 @@
+HELLO MY NAME IS.
+
+Lila "command(This my a thought)"
+Lila "(This my a thought)"
+Lila "this is Lila Dialogue" command(args goes here)
+command(another args goes here)", argCom(just like before)
+command(Yep this a another args goes here)
+
+
+
+
