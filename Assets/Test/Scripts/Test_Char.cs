@@ -60,7 +60,7 @@ namespace TESTING
 
             Guard.SetPosition(Vector2.zero);
             Raelin.SetPosition(new Vector2(0.5f, 0.5f));
-            fs.SetPosition(Vector2.one);
+            fs.SetPosition(Vector2.zero);
 
             yield return Guard.MoveToNewPosition(Vector2.one);
             yield return Guard.MoveToNewPosition(Vector2.zero);
