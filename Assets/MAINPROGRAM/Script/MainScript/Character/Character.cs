@@ -1,6 +1,6 @@
 using DIALOGUE;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -14,14 +14,15 @@ namespace Characters
         public CharacterConfigData config;
         public Animator animator;
 
-        //Coroutine
-        protected Coroutine co_Showing, co_hiding;
+        // Coroutine references
+        protected Coroutine co_Showing, co_hiding, co_moving;
 
         protected CharacterManager manager => CharacterManager.Instance;
         public DialogController dialogController => DialogController.Instance;
 
         public bool isShowing => co_Showing != null;
         public bool isHidding => co_hiding != null;
+        public bool isMoving => co_moving != null;
         public virtual bool isVisible => false;
 
         public Character(string name, CharacterConfigData config, GameObject prefab)
@@ -33,6 +34,7 @@ namespace Characters
             if (prefab != null)
             {
                 GameObject ob = Object.Instantiate(prefab, manager.characterPanel);
+                ob.name = manager.FormatCharacterPath(manager.CharacterPerfabNameFormat, name);
                 ob.SetActive(true);
                 mainGame = ob.GetComponent<RectTransform>();
                 animator = mainGame.GetComponentInChildren<Animator>();
@@ -59,13 +61,13 @@ namespace Characters
 
         public virtual Coroutine Show()
         {
-            if(isShowing)
+            if (isShowing)
                 return co_Showing;
+
             if (isHidding)
                 manager.StopCoroutine(co_hiding);
 
             co_Showing = manager.StartCoroutine(ShowOrHidingCharacter(true));
-
             return co_Showing;
         }
 
@@ -73,11 +75,11 @@ namespace Characters
         {
             if (isHidding)
                 return co_hiding;
+
             if (isShowing)
                 manager.StopCoroutine(co_Showing);
 
             co_hiding = manager.StartCoroutine(ShowOrHidingCharacter(false));
-
             return co_hiding;
         }
 
@@ -85,6 +87,70 @@ namespace Characters
         {
             Debug.Log("Show/Hide cannot be called from a base charType");
             yield return null;
+        }
+
+        public virtual void SetPosition(Vector2 position)
+        {
+            if (mainGame == null)
+                return;
+
+            (Vector2 minAnchorTarget, Vector2 maxAnchorTarget) = ConvertUITargetPositionToRelativeCharacterAnchorPointTargets(position);
+            mainGame.anchorMin = minAnchorTarget;
+            mainGame.anchorMax = maxAnchorTarget;
+        }
+        public virtual Coroutine MoveToNewPosition(Vector2 position, float speed = 2f, bool smooth = false)
+        {
+            if (mainGame == null)
+                return null;
+
+            if (isMoving)
+                manager.StopCoroutine(co_moving);
+
+            co_moving = manager.StartCoroutine(MovingToPosition(position, speed, smooth));
+
+            return co_moving;
+        }
+
+
+        private IEnumerator MovingToPosition(Vector2 position, float speed = 2f, bool smooth = false)
+        {
+            (Vector2 minAnchorTarget, Vector2 maxAnchorTarget) = ConvertUITargetPositionToRelativeCharacterAnchorPointTargets(position);
+            Vector2 padding = mainGame.anchorMax - mainGame.anchorMin;
+
+            while(mainGame.anchorMin != minAnchorTarget ||  mainGame.anchorMax != maxAnchorTarget)
+            {
+                mainGame.anchorMin = smooth ? 
+                    Vector2.Lerp(mainGame.anchorMin, minAnchorTarget, speed * Time.deltaTime)
+                    : Vector2.MoveTowards(mainGame.anchorMin, minAnchorTarget, speed * Time.deltaTime * 0.35f);
+
+                mainGame.anchorMax = mainGame.anchorMin + padding;
+
+                if (smooth && Vector2.Distance(mainGame.anchorMin, minAnchorTarget) <= 0.001f)
+                {
+                    mainGame.anchorMin = minAnchorTarget;
+                    mainGame.anchorMax = maxAnchorTarget;
+                    break;
+                }
+
+                yield return null;
+            }
+
+            Debug.Log("Done Moving");
+            co_moving = null;
+        }
+
+        protected (Vector2, Vector2) ConvertUITargetPositionToRelativeCharacterAnchorPointTargets(Vector2 position)
+        {
+            Vector2 padding = mainGame.anchorMax - mainGame.anchorMin;
+
+            float maxX = 1f - padding.x;
+            float maxY = 1f - padding.y;
+
+            Vector2 minAnchorTarget = new Vector2(maxX * position.x, maxY * position.y);
+
+            Vector2 maxAnchorTarget = minAnchorTarget + padding;
+
+            return (minAnchorTarget, maxAnchorTarget);
         }
 
         public enum CharacterType
@@ -95,6 +161,5 @@ namespace Characters
             Live2D,
             Model3D
         }
-
     }
 }

@@ -3,7 +3,7 @@ guid: 418997cd131ebf84fac6b738543fe03f
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -20,11 +20,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMasterTextureLimit: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -44,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -63,6 +64,8 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -74,6 +77,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -86,6 +90,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -98,6 +103,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 3
@@ -110,6 +116,7 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
@@ -630,33 +637,32 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Raelin_11: -1818594040
-      Raelin_4: 877658820
-      Raelin_12: 752875108
-      Raelin_3: -984643779
-      Raelin_6: -231494423
-      Raelin_20: -12134526
-      Raelin_2: 2143271235
-      Raelin_9: 1731016576
-      Raelin_22: -831843799
-      Raelin_21: -899087398
-      Raelin_5: 1533307292
-      Raelin_23: 2079976379
-      Raelin_8: -861763730
-      Raelin_7: 455040721
-      Raelin_17: 2089198746
-      Raelin_16: 1148731873
-      Raelin_13: -810301392
       Raelin_0: -539901293
-      Raelin_18: -819501888
-      Raelin_14: 1930344441
-      Raelin_19: -1330446141
-      Raelin_10: 1799884572
       Raelin_1: 371039983
+      Raelin_10: 1799884572
+      Raelin_11: -1818594040
+      Raelin_12: 752875108
+      Raelin_13: -810301392
+      Raelin_14: 1930344441
       Raelin_15: -1720575887
-  spritePackingTag: 
+      Raelin_16: 1148731873
+      Raelin_17: 2089198746
+      Raelin_18: -819501888
+      Raelin_19: -1330446141
+      Raelin_2: 2143271235
+      Raelin_20: -12134526
+      Raelin_21: -899087398
+      Raelin_22: -831843799
+      Raelin_23: 2079976379
+      Raelin_3: -984643779
+      Raelin_4: 877658820
+      Raelin_5: 1533307292
+      Raelin_6: -231494423
+      Raelin_7: 455040721
+      Raelin_8: -861763730
+      Raelin_9: 1731016576
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
