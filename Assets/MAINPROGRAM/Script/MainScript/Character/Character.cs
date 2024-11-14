@@ -4,10 +4,13 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
+
 namespace Characters
 {
     public abstract class Character
     {
+        public const bool Enamble_On_Start = true;
+
         public string name = "";
         public string displayName = "";
         public RectTransform mainGame = null;
@@ -23,7 +26,7 @@ namespace Characters
         public bool isShowing => co_Showing != null;
         public bool isHidding => co_hiding != null;
         public bool isMoving => co_moving != null;
-        public virtual bool isVisible => false;
+        public virtual bool isVisible { get; set; }
 
         public Character(string name, CharacterConfigData config, GameObject prefab)
         {

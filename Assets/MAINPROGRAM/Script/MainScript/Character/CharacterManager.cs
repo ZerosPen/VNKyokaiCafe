@@ -82,6 +82,10 @@ namespace Characters
             result.prefab = getPrefabForCharacter(result.castingName);
 
             result.rootCharacterFolder = FormatCharacterPath(characterRootPathFormat, result.castingName);
+            if (string.IsNullOrEmpty(result.rootCharacterFolder))
+            {
+                Debug.LogError("Formatted character path is empty or invalid.");
+            }
 
             return result;
         }

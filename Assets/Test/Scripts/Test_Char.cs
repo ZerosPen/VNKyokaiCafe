@@ -14,10 +14,7 @@ namespace TESTING
         // Start is called before the first frame update
         void Start()
         {
-            //Character Raelin = CharacterManager.Instance.createChracter("Raelin"); // Corrected spelling
-            //Character Lila = CharacterManager.Instance.createChracter("Lila"); // Corrected spelling
-            //Character Ran = CharacterManager.Instance.createChracter("Ran"); // Corrected spelling
-            //Character Lilo = CharacterManager.Instance.createChracter("Lilo"); // Corrected spelling
+            
             StartCoroutine(SecondTest());
         }
 
@@ -46,35 +43,28 @@ namespace TESTING
         {
             Character_Sprite Guard = CreatCharacter("guard1 as Generic") as Character_Sprite;
             Character_Sprite Raelin = CreatCharacter("Raelin") as Character_Sprite;
-            Character fs = CreatCharacter("Female Student 2");
+            //Character_Sprite Student = CreatCharacter("Female Student 2") as Character_Sprite;
+            Guard.isVisible = false;
 
-            Sprite bodySprite = Raelin.GetSprite("Raelin_2");
-            Sprite faceSprite = Raelin.GetSprite("Raelin_12");
+            yield return new WaitForSeconds(1);
 
-            Raelin.SetSprite(bodySprite, 0);
-            Raelin.SetSprite(faceSprite, 1);
+            Sprite body = Raelin.GetSprite("B2");
+            Sprite face = Raelin.GetSprite("B_Blush");
+            Raelin.TransitionSprite(body);
+            yield return Raelin.TransitionSprite(face, 1);
 
-            Guard.Show();
-            Raelin.Show();
-            fs.Show();
+            //Raelin.MoveToNewPosition(Vector2.zero);
+            //Guard.Show();
+            //yield return Guard.MoveToNewPosition(new Vector2(1, 0));
 
-            Guard.SetPosition(Vector2.zero);
-            Raelin.SetPosition(new Vector2(0.5f, 0.5f));
-            fs.SetPosition(Vector2.zero);
+            yield return Raelin.TransitionSprite(Raelin.GetSprite("B_Shock"), layer:1);
+            Raelin.TransitionSprite(Raelin.GetSprite("B1"));
 
-            yield return Guard.MoveToNewPosition(Vector2.one);
-            yield return Guard.MoveToNewPosition(Vector2.zero);
+            //body = Guard.GetSprite("Monk");
+            //Guard.TransitionSprite(body);
+            
 
-
-            Guard.SetNameFont(tempFont);
-            Guard.SetDialogueFont(tempFont);
-            Guard.SetDialogueColor(Color.yellow);
-            Raelin.SetDialogueColor(Color.red);
-            fs.SetDialogueColor(Color.cyan);
-
-            yield return Guard.Say("MAKE A WAY FORM YOUR LAND LORD!");
-            yield return fs.Say("YOU!{wc 1}move from the street.");
-            yield return Raelin.Say("HEY!{wc 0.5} WATCH YOUR STEP.");
+            yield return null;
         }
 
         // Update is called once per frame
