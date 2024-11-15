@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEditor;
 
 
 namespace Characters
@@ -10,23 +11,39 @@ namespace Characters
     public abstract class Character
     {
         public const bool Enamble_On_Start = true;
+        private const float unHighLightedDarkenStrength = 0.65f;
+        public const bool Default_Orientation_Is_Facing_left = true;
+        public const string Animation_Refresh_Trigger = "Refresh";
 
         public string name = "";
         public string displayName = "";
         public RectTransform mainGame = null;
         public CharacterConfigData config;
         public Animator animator;
+        public Color color { get; protected set; } = Color.white;
+        protected Color displayColor => HighLighted ? HighLightColor : UnHighLightColor;
+        protected Color HighLightColor => color;
+        protected Color UnHighLightColor => new Color(color.r * unHighLightedDarkenStrength, color.g * unHighLightedDarkenStrength, color.b * unHighLightedDarkenStrength, color.a);
+        public bool HighLighted {  get; protected set; } =true;
+        protected bool facingleft = Default_Orientation_Is_Facing_left;
+        public int priority { get; protected set; }
+
+        protected CharacterManager characterManager => CharacterManager.Instance;
+        public DialogController dialogController => DialogController.Instance;
 
         // Coroutine references
-        protected Coroutine co_Showing, co_hiding, co_moving;
-
-        protected CharacterManager manager => CharacterManager.Instance;
-        public DialogController dialogController => DialogController.Instance;
+        protected Coroutine co_Showing, co_hiding, co_moving, co_ChangeColor, co_highLighting, co_flipping;
 
         public bool isShowing => co_Showing != null;
         public bool isHidding => co_hiding != null;
         public bool isMoving => co_moving != null;
+        public bool isChangeColor => co_ChangeColor != null;
+        public bool isHighLighting => (HighLighted && co_highLighting != null);
+        public bool isUnHighLighting => (!HighLighted && co_highLighting != null);
         public virtual bool isVisible { get; set; }
+        public bool isFacingLeft => facingleft;
+        public bool isFacingRight => !facingleft;
+        public bool isFlipping => co_flipping != null;
 
         public Character(string name, CharacterConfigData config, GameObject prefab)
         {
@@ -36,8 +53,8 @@ namespace Characters
 
             if (prefab != null)
             {
-                GameObject ob = Object.Instantiate(prefab, manager.characterPanel);
-                ob.name = manager.FormatCharacterPath(manager.CharacterPerfabNameFormat, name);
+                GameObject ob = Object.Instantiate(prefab, characterManager.characterPanel);
+                ob.name = characterManager.FormatCharacterPath(characterManager.CharacterPerfabNameFormat, name);
                 ob.SetActive(true);
                 mainGame = ob.GetComponent<RectTransform>();
                 animator = mainGame.GetComponentInChildren<Animator>();
@@ -68,9 +85,9 @@ namespace Characters
                 return co_Showing;
 
             if (isHidding)
-                manager.StopCoroutine(co_hiding);
+                characterManager.StopCoroutine(co_hiding);
 
-            co_Showing = manager.StartCoroutine(ShowOrHidingCharacter(true));
+            co_Showing = characterManager.StartCoroutine(ShowOrHidingCharacter(true));
             return co_Showing;
         }
 
@@ -80,9 +97,9 @@ namespace Characters
                 return co_hiding;
 
             if (isShowing)
-                manager.StopCoroutine(co_Showing);
+                characterManager.StopCoroutine(co_Showing);
 
-            co_hiding = manager.StartCoroutine(ShowOrHidingCharacter(false));
+            co_hiding = characterManager.StartCoroutine(ShowOrHidingCharacter(false));
             return co_hiding;
         }
 
@@ -107,9 +124,9 @@ namespace Characters
                 return null;
 
             if (isMoving)
-                manager.StopCoroutine(co_moving);
+                characterManager.StopCoroutine(co_moving);
 
-            co_moving = manager.StartCoroutine(MovingToPosition(position, speed, smooth));
+            co_moving = characterManager.StartCoroutine(MovingToPosition(position, speed, smooth));
 
             return co_moving;
         }
@@ -154,6 +171,115 @@ namespace Characters
             Vector2 maxAnchorTarget = minAnchorTarget + padding;
 
             return (minAnchorTarget, maxAnchorTarget);
+        }
+
+        public virtual void SetColor(Color color)
+        {
+            this.color = color;
+        }
+
+        public Coroutine TransisitioColor(Color color, float speed = 1f)
+        {
+            this.color = color;
+            if (isChangeColor)
+                characterManager.StopCoroutine(co_ChangeColor);
+
+            co_ChangeColor = characterManager.StartCoroutine(ChangeColor(displayColor, speed));
+
+            return co_ChangeColor;
+        }
+
+        public virtual IEnumerator ChangeColor(Color color, float speed)
+        {
+            Debug.Log("Color changing is not applicable on this character type!");
+            yield return null;
+        }
+
+        public Coroutine HighLight(float speed = 1f)
+        {
+            if(isHighLighting)
+                return co_highLighting;
+
+            if (isUnHighLighting)
+                characterManager.StopCoroutine(co_highLighting);
+
+            HighLighted = true;
+            co_highLighting = characterManager.StartCoroutine(HighLighting(HighLighted, speed));
+            return co_highLighting;
+
+        }
+        public Coroutine UnHighLight(float speed = 1f)
+        {
+            if (isUnHighLighting)
+                return co_highLighting;
+
+            if (isHighLighting)
+                characterManager.StopCoroutine(co_highLighting);
+
+            HighLighted = false;
+            co_highLighting = characterManager.StartCoroutine(HighLighting(HighLighted, speed));
+            return co_highLighting;
+        }
+
+        public virtual IEnumerator HighLighting(bool highlight, float speedMultiplier)
+        {
+            Debug.Log("Highlight is not available on this character type!");
+            yield return null;
+        }
+
+        public Coroutine Flip(float speed = 1, bool immediate = false)
+        {
+            if (isFacingLeft)
+                return FaceRight(speed, immediate);
+            else
+                return FaceLeft(speed, immediate);
+        }
+
+        public Coroutine FaceLeft(float speed = 1, bool  immediate = false)
+        {
+            if (isFlipping)
+                characterManager.StopCoroutine(co_flipping);
+
+            facingleft = true;
+            co_flipping = characterManager.StartCoroutine(FaceDirection(facingleft, speed, immediate));
+
+            return co_flipping;
+        }
+
+        public Coroutine FaceRight(float speed = 1, bool immediate = false)
+        {
+            if (isFlipping)
+                characterManager.StopCoroutine(co_flipping);
+
+            facingleft = false;
+            co_flipping = characterManager.StartCoroutine(FaceDirection(facingleft, speed, immediate));
+
+            return co_flipping;
+        }
+
+        public virtual IEnumerator FaceDirection(bool faceleft, float speedMultiplier, bool immediate)
+        {
+            Debug.Log("Cant flip on this character type!");
+            yield return null;
+        }
+
+        public void SetPriority(int priority, bool autoSortCharacterOnUI = true)
+        {
+            this.priority = priority;
+
+            if (autoSortCharacterOnUI)
+                characterManager.SortCharacters();
+        }
+
+        public void Animate(string animation)
+        {
+            animator.SetTrigger(animation);
+        }
+
+        public void Animate(string animation, bool state)
+        {
+            animator.SetBool(animation, state);
+            animator.SetTrigger(Animation_Refresh_Trigger);
         }
 
         public enum CharacterType

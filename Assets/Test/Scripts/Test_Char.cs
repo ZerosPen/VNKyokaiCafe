@@ -18,51 +18,38 @@ namespace TESTING
             StartCoroutine(SecondTest());
         }
 
-        //IEnumerator Test()
-        //{
-        //    //Character Raelin = CreatCharacter("Raelin");
-        //    Character Guard1 = CreatCharacter("guard1 as Generic");
-        //    Character Guard2 = CreatCharacter("guard2 as Generic");
-        //    Character Guard3 = CreatCharacter("guard3 as Generic");
-
-        //    Guard1.Show();
-        //    Guard2.Show();
-        //    Guard2.Show();
-
-        //    //yield return Raelin.Say("Hello");
-        //    //yield return Raelin.Say("Hello again");
-        //    //yield return Raelin.Say("Hello again again");
-        //    //yield return Raelin.Say("Hello again again again");
-
-        //    yield return Guard1.Say("MAKE A WAY FORM YOUR LAND LORD!");
-        //    yield return Guard2.Say("YOU!{wc 1}move from the street.");
-        //    yield return Guard3.Say("HEY!{wc 0.5} WATCH YOUR STEP.");
-        //}
-
         IEnumerator SecondTest()
         {
-            Character_Sprite Guard = CreatCharacter("guard1 as Generic") as Character_Sprite;
             Character_Sprite Raelin = CreatCharacter("Raelin") as Character_Sprite;
-            //Character_Sprite Student = CreatCharacter("Female Student 2") as Character_Sprite;
-            Guard.isVisible = false;
+           // Character_Sprite Guard1 = CreatCharacter("guard1 as Generic") as Character_Sprite;
+            Character_Sprite Monk = CreatCharacter("Monk as Generic") as Character_Sprite;
+            // Character_Sprite Guard = CreatCharacter("Generic") as Character_Sprite;
+            Sprite body = Monk.GetSprite("Monk");
+            Monk.SetSprite(body);
+
+            Raelin.SetPosition(Vector2.zero);
+            Monk.SetPosition(new Vector2(1, 0));
 
             yield return new WaitForSeconds(1);
 
-            Sprite body = Raelin.GetSprite("B2");
-            Sprite face = Raelin.GetSprite("B_Blush");
-            Raelin.TransitionSprite(body);
-            yield return Raelin.TransitionSprite(face, 1);
+            Raelin.FaceRight();
+            yield return Raelin.MoveToNewPosition(new Vector2(0.35f, 0));
+            Raelin.TransitionSprite(Raelin.GetSprite("A1"));
+            Raelin.TransitionSprite(Raelin.GetSprite("A_Scold"), layer:1);
+            Raelin.Animate("Hop");
+            yield return Raelin.Say("AHHh{wc 1} Another mage");
 
-            //Raelin.MoveToNewPosition(Vector2.zero);
-            //Guard.Show();
-            //yield return Guard.MoveToNewPosition(new Vector2(1, 0));
+            yield return Monk.Say("HAHAAH{wa 1} another Traveler just come by");
 
-            yield return Raelin.TransitionSprite(Raelin.GetSprite("B_Shock"), layer:1);
-            Raelin.TransitionSprite(Raelin.GetSprite("B1"));
+            Raelin.TransitionSprite(Raelin.GetSprite("A_Shock"), layer: 1);
+            Raelin.Animate("Shiver", true);
+            yield return Raelin.Say(". . .");
 
-            //body = Guard.GetSprite("Monk");
-            //Guard.TransitionSprite(body);
-            
+            yield return Monk.Say("A your scare little girl?");
+
+            Raelin.TransitionSprite(Raelin.GetSprite("A_Worried"), layer: 1);
+            Raelin.Animate("Shiver", false);
+            yield return Raelin.Say("No");
 
             yield return null;
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -117,6 +118,63 @@ namespace Characters
             }
             co_Showing = null;
             co_hiding  = null;
+        }
+
+        public override void SetColor(Color color)
+        {
+            base.SetColor(color);
+
+            color = displayColor;
+
+            foreach(CharacterSpriteLayer layer in layers)
+            {
+                layer.StopChangingColor();
+                layer.SetColor(color);
+            }
+        }
+
+        public override IEnumerator ChangeColor(Color color, float speed)
+        {
+            foreach(CharacterSpriteLayer layer in layers)
+                layer.TransisitioColor(color, speed);
+            yield return null;
+
+            while(layers.Any(l => l.isChangingColor))
+                yield return null;
+
+            co_ChangeColor = null;
+        }
+
+        public override IEnumerator HighLighting(bool highlight, float speedMultiplier)
+        {
+            Color targerColor = displayColor;
+
+            foreach (CharacterSpriteLayer layer in layers)
+            {
+                layer.TransisitioColor(targerColor, speedMultiplier);
+            }
+
+            yield return null;
+
+            while (layers.Any(l => l.isChangingColor))
+                yield return null;
+
+            co_highLighting = null;
+        }
+        public override IEnumerator FaceDirection(bool faceleft, float speedMultiplier, bool immediate)
+        {
+            foreach(CharacterSpriteLayer layer in layers)
+            {
+                if (faceleft)
+                    layer.FaceLeft(speedMultiplier, immediate);
+                else
+                    layer.FaceRight(speedMultiplier, immediate);
+            }
+            yield return null;
+
+            while (layers.Any(l => l.isFlipping))
+                yield return null;
+            co_flipping = null;
         }
     }
 }

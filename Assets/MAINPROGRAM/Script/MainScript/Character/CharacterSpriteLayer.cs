@@ -12,7 +12,7 @@ namespace Characters
         private CharacterManager characterManager => CharacterManager.Instance;
 
         private const float Default_Transition_Speed = 2f;
-        private const float transitionSpeedMultiplier = 1f;
+        private float transitionSpeedMultiplier = 1f;
 
         public int layer { get; private set; } = 0;
         public Image renderer { get; private set; } = null;
@@ -22,8 +22,14 @@ namespace Characters
 
         private Coroutine co_transitioningLayer = null;
         private Coroutine co_LevelingAlpha = null;
+        private Coroutine co_ChangingColor = null;
+        private Coroutine co_Flipping = null;
+        private bool isFacingLeft = Character.Default_Orientation_Is_Facing_left;
+
         public bool isTransitioningLayer => co_transitioningLayer != null;
         public bool isLevelingAlpha => co_LevelingAlpha != null;
+        public bool isChangingColor => co_ChangingColor != null;
+        public bool isFlipping => co_Flipping != null;
 
         public CharacterSpriteLayer(Image defaultRenderer, int layer = 0)
         {
@@ -119,6 +125,113 @@ namespace Characters
             }
 
             co_LevelingAlpha = null; // Reset coroutine reference after completion
+        }
+
+        public void SetColor(Color color)
+        {
+            renderer.color = color;
+
+            foreach(CanvasGroup oldCG in oldRenderer)
+            {
+                oldCG.GetComponent<Image>().color = color;
+            }
+        }
+
+        public Coroutine TransisitioColor(Color color, float speed = 1f)
+        {
+            if (isChangingColor)
+                characterManager.StopCoroutine(co_ChangingColor);
+
+            co_ChangingColor = characterManager.StartCoroutine(ChangingColor(color, speed));
+
+            return co_ChangingColor;
+        }
+
+        public void StopChangingColor()
+        {
+            if (!isChangingColor)
+                return;
+
+            characterManager.StopCoroutine(co_ChangingColor);
+            co_ChangingColor = null;
+        }
+
+        private IEnumerator ChangingColor(Color color, float speedMultiplier)
+        {
+            Color oldColor = renderer.color;
+            List<Image> oldImages = new List<Image>();
+
+            foreach (var oldCG in oldRenderer)
+            {
+                oldImages.Add(oldCG.GetComponent<Image>());
+            }
+
+            float colorPercent = 0;
+            while (colorPercent < 1)
+            {
+                colorPercent += Default_Transition_Speed * speedMultiplier * Time.deltaTime;
+                renderer.color = Color.Lerp(oldColor, color, colorPercent);
+
+                foreach(Image oldImage in oldImages)
+                {
+                    oldImage.color = renderer.color;
+                }
+
+                yield return null;
+            }
+            co_ChangingColor = null;
+        }
+
+        public Coroutine Flip(float speed = 1, bool immediate = false)
+        {
+            if (isFacingLeft)
+                return FaceRight(speed , immediate);
+            else
+                return FaceLeft(speed, immediate);
+        }
+
+        public Coroutine FaceLeft(float speed, bool immediate = false)
+        {
+            if (isFlipping)
+                characterManager.StopCoroutine(co_Flipping);
+
+            isFacingLeft = true;
+            co_Flipping = characterManager.StartCoroutine(FaceDirection(isFacingLeft, speed, immediate));
+            return co_Flipping;
+        }
+
+        public Coroutine FaceRight(float speed, bool immediate = false)
+        {
+            if (isFlipping)
+                characterManager.StopCoroutine(co_Flipping);
+
+            isFacingLeft = false;
+            co_Flipping = characterManager.StartCoroutine(FaceDirection(isFacingLeft, speed,immediate));
+            return co_Flipping;
+        }
+        private IEnumerator FaceDirection(bool faceleft, float speedMultiplier, bool immediate = false)
+        {
+            float xScale = faceleft ? 1 : -1;
+            Vector3 newScale = new Vector3 (xScale, 1, 1);
+
+            if (!immediate)
+            {
+                Image newRenderer =  CreateRenderer(renderer.transform.parent);
+
+                newRenderer.transform.localScale = newScale;
+
+                transitionSpeedMultiplier = speedMultiplier;
+                TryStartLevelingAlpha();
+
+                while (isLevelingAlpha)
+                    yield return null;
+
+            }
+            else
+            {
+                renderer.transform.localScale = newScale;
+            }
+            co_Flipping = null;
         }
     }
 }
