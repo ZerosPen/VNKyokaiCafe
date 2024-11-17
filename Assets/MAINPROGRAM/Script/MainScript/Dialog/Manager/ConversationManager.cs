@@ -117,7 +117,7 @@ namespace DIALOGUE
            List<DL_CommandData.Command> commands = line.commandData.commands;
            foreach(DL_CommandData.Command command in commands)
             {
-                if (command.waitForComplete)
+                if (command.waitForComplete || command.name == "wait")
                 {
                     yield return CommandManager.Instance.Executed(command.name, command.arguments);
                 }

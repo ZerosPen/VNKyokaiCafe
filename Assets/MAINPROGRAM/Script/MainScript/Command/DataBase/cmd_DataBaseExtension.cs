@@ -10,5 +10,7 @@ namespace Commands
         {
             // Implementation goes here
         }
+
+        public static CommandParameters ConvertDataToParameters(string[] data) => new CommandParameters(data);
     }
 }

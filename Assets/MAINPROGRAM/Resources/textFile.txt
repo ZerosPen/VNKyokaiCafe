@@ -1,1 +1,9 @@
-enter Female Student 2 at 1:0 [sad] "I'm lacking anything of substance to say"
+wait(1), CreatCharacter(Raelin -e true), CreatCharacter("Guard1 as Generic" -e true -i true)
+
+MoveCharacter(Raelin  -x 1  -y -0.5 -spd 0.75 -smooth true -Immadiate true)
+
+Show(Raelin -i false)
+
+Narrator "Showing Characters."
+
+enter Female Student 2 at 1:0 [blush] "I'm lacking anything of substance to say"

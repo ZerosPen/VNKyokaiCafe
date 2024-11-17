@@ -14,6 +14,8 @@ namespace Commands
 
         public void addCommand(string commandName, Delegate command)
         {
+            commandName = commandName.ToLower();
+
             if (!database.ContainsKey(commandName))
             {
                 database.Add(commandName, command);
@@ -24,6 +26,8 @@ namespace Commands
         }
         public Delegate GetCommand(string commandName)
         {
+            commandName = commandName.ToLower();
+
             if (!database.ContainsKey(commandName))
             {
                 Debug.LogError($"Command '{commandName}' does not exist in the DataBaseCommand"); // Corrected spelling
