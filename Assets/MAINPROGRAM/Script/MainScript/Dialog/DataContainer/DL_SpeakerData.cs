@@ -44,7 +44,7 @@ namespace DIALOGUE
         {
             rawSpeaker = ProcessKeyWord(rawSpeaker);
 
-            string pattern = $"{NameCast_Id}|{PositionCast_Id}| {ExpressionCast_Id.Insert(ExpressionCast_Id.Length - 1, @"\")}";
+            string pattern = $"{NameCast_Id}|{PositionCast_Id}|{ExpressionCast_Id.Insert(ExpressionCast_Id.Length - 1, @"\")}";
             MatchCollection matches = Regex.Matches(rawSpeaker, pattern);
 
             //Polulate this data to avoid null reference to values

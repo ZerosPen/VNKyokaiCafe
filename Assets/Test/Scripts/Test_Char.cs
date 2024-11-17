@@ -24,6 +24,11 @@ namespace TESTING
            // Character_Sprite Guard1 = CreatCharacter("guard1 as Generic") as Character_Sprite;
             Character_Sprite Monk = CreatCharacter("Monk as Generic") as Character_Sprite;
             // Character_Sprite Guard = CreatCharacter("Generic") as Character_Sprite;
+
+            Character Student = CreatCharacter("Female Student 2");
+
+            Student.Show();
+
             Sprite body = Monk.GetSprite("Monk");
             Monk.SetSprite(body);
 

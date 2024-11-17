@@ -179,9 +179,11 @@ namespace Characters
 
         public override void OnReceiveCastingExpression(int layer, string expression)
         {
+            Debug.Log($"Looking for sprite with expression: '{expression}'");
+
             Sprite sprite = GetSprite(expression);
 
-            if(sprite == null)
+            if (sprite == null)
             {
                 Debug.LogWarning($"Sprite '{expression}' is not found for '{name}'");
                 return;
