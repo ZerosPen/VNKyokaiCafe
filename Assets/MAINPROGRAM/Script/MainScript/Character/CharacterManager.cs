@@ -54,7 +54,7 @@ namespace Characters
             return null;
         }
 
-        public Character createChracter(string characterName)
+        public Character createChracter(string characterName, bool revealAfterCreation = false)
         {
             //check you are making duplic character
             if (characters.ContainsKey(characterName.ToLower()))
@@ -68,6 +68,9 @@ namespace Characters
             Character character = CreaterCharFromInfo(info);
 
             characters.Add(info.name.ToLower(), character);
+
+            if(revealAfterCreation)
+                character.Show();
 
             return character;
         }

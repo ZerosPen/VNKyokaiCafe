@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,17 @@ public class FileManager
         if (!filepath.StartsWith('/'))
             filepath = FilePaths.root + filepath;
 
+        Debug.Log($"Attempting to read file at: {filepath}"); // Debugging line
+
         List<string> lines = new List<string>();
+
+        // Check if the file exists before trying to read it
+        if (!File.Exists(filepath))
+        {
+            Debug.LogError($"File does not exist at: {filepath}");
+            return lines; // Return early if the file doesn't exist
+        }
+
         try
         {
             using (StreamReader sr = new StreamReader(filepath))
@@ -27,6 +38,10 @@ public class FileManager
         {
             Debug.LogError($"File not found: '{ex.FileName}'");
         }
+        catch (Exception ex) // Catch other potential exceptions
+        {
+            Debug.LogError($"An error occurred while reading the file: {ex.Message}");
+        }
 
         return lines;
     }
@@ -39,7 +54,6 @@ public class FileManager
             Debug.LogError($"Asset Not Found: '{filepath}'");
             return null;
         }
-
 
         return readTxtAsset(asset, includeBlankLines);
     }

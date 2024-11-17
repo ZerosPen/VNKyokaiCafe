@@ -10,7 +10,7 @@ namespace Characters
 {
     public abstract class Character
     {
-        public const bool Enamble_On_Start = true;
+        public const bool Enamble_On_Start = false;
         private const float unHighLightedDarkenStrength = 0.65f;
         public const bool Default_Orientation_Is_Facing_left = true;
         public const string Animation_Refresh_Trigger = "Refresh";
@@ -282,6 +282,10 @@ namespace Characters
             animator.SetTrigger(Animation_Refresh_Trigger);
         }
 
+        public virtual void OnReceiveCastingExpression(int layer, string expression)
+        {
+            return;
+        }
         public enum CharacterType
         {
             text,

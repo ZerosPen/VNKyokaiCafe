@@ -1,0 +1,3 @@
+enter Raelin as ??? [0:A2,1:B_Blush] "Hello{wc 1} guard why are here"
+
+enter Generic [Monk] "I'm lacking anything of substance to say"

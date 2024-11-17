@@ -1,3 +1,4 @@
+using Characters;
 using Commands;
 using System.Collections;
 using System.Collections.Generic;
@@ -71,11 +72,44 @@ namespace DIALOGUE
         {
             //show or hide char name
             if (line.hasSpeaker)
-                dialogController.showSpeakerName(line.speakerData.displayName);
+                handleSpeakLogic(line.speakerData);
 
             //build dailog
             yield return BuildLineSegments(line.dialogueData);
 
+        }
+
+        private void handleSpeakLogic(DL_SpeakerData speakerData)
+        {
+            // Determine if a character must be created based on the speaker data
+            bool characterMustCreate = speakerData.makeCharacterEnter || speakerData.isCastingPos || speakerData.isCastExpresion;
+
+            // Retrieve or create the character
+            Character character = CharacterManager.Instance.GetCharacter(speakerData.name, creatIfDoesNotAxist: characterMustCreate);
+
+            if (speakerData.makeCharacterEnter && (!character.isVisible && !character.isShowing))
+            {
+                character.Show();
+            }
+
+            // Display the speaker's name in the dialog
+            dialogController.showSpeakerName(speakerData.displayName);
+
+            DialogController.Instance.ApplySpeakerDataToDialogContainer(speakerData.name);
+
+            // Check if the character should move and process casting expressions
+            if (speakerData.isCastingPos)
+            {
+                // Move the character to the specified position
+                character.MoveToNewPosition(speakerData.castPosition);
+            }
+
+            // Check for casting expressions
+            if (speakerData.isCastExpresion)
+            {
+                foreach (var ce in speakerData.CastExpresion)
+                    character.OnReceiveCastingExpression(ce.layer,ce.expression);
+            } 
         }
 
         IEnumerator Line_RunCommands(DailogLine line)
