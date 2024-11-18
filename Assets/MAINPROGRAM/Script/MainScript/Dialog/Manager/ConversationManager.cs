@@ -64,8 +64,11 @@ namespace DIALOGUE
                 }
 
                 if(line.hasDialogue)
+                {
                     //wiat for userInput
                     yield return WaitForUserInput();
+                    CommandManager.Instance.StopAllProcesses();
+                }
             }
         }
         IEnumerator Line_RunDialogue(DailogLine line)
@@ -119,7 +122,16 @@ namespace DIALOGUE
             {
                 if (command.waitForComplete || command.name == "wait")
                 {
-                    yield return CommandManager.Instance.Executed(command.name, command.arguments);
+                    CoroutineWrapper cw = CommandManager.Instance.Executed(command.name, command.arguments);
+                    while(!cw.isDone)
+                    {
+                        if (UserPromt)
+                        {
+                            CommandManager.Instance.StopCurrentProcess();
+                            UserPromt = false;
+                        }
+                        yield return null;
+                    }
                 }
                 else
                     CommandManager.Instance.Executed(command.name, command.arguments);

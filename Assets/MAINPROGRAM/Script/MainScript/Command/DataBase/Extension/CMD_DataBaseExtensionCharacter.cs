@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Characters;
 using System.Linq;
+using UnityEngine.UIElements;
 
 namespace Commands
 {
@@ -22,6 +23,15 @@ namespace Commands
             dataBase.addCommand("movecharacter", new Func<string[], IEnumerator>(MoveCharacter));
             dataBase.addCommand("show", new Func<string[], IEnumerator>(ShowAll));
             dataBase.addCommand("hide", new Func<string[], IEnumerator>(HideAll));
+            dataBase.addCommand("sort", new Action<string[]>(Sort));
+
+            //Add commads to Characters
+            CommandDataBase baseCommand = CommandManager.Instance.CreatSubDataBase(CommandManager.DataBase_characters_Base);
+            baseCommand.addCommand("move", new Func<string[], IEnumerator>(MoveCharacter));
+            baseCommand.addCommand("show", new Func<string[], IEnumerator>(Show));
+            baseCommand.addCommand("hide", new Func<string[], IEnumerator>(Hide));
+            baseCommand.addCommand("setpriority", new Action<string[]>(SetPriority));
+            baseCommand.addCommand("setcolor", new Func<string[], IEnumerator>(SetColor));
         }
 
         public static void CreatCharacter(string[] data)
@@ -44,6 +54,11 @@ namespace Commands
                 character.isVisible = true;
             else if(enable)
                 character.Show();
+        }
+
+        public static void Sort(string[] data)
+        {
+            CharacterManager.Instance.SortCharacters(data);
         }
 
         private static IEnumerator MoveCharacter(string[] data)
@@ -77,16 +92,20 @@ namespace Commands
 
             Vector2 position = new Vector2(x, y);
 
-            if(immediate)
+            if (immediate)
                 character.SetPosition(position);
-            else 
+            else
+            {
+                CommandManager.Instance.AddTerminationActionToCurrentProcess(() => { character?.SetPosition(position); });
                 yield return character.MoveToNewPosition(position, speed, smooth);
+            }    
         }
 
         public static IEnumerator ShowAll(string[] data)
         {
             List<Character> chacarters = new List<Character>();
             bool immediate = false;
+            float speed = 1f;
 
             foreach (string s in data)
             {
@@ -102,6 +121,7 @@ namespace Commands
             var parameters = ConvertDataToParameters(data);
 
             parameters.TryGetValue(Param_Immediate, out immediate, defaultValue: false);
+            parameters.TryGetValue(Param_Speed, out speed, defaultValue: 1f);
 
             //call the logic on all the character
             foreach(Character character in chacarters)
@@ -109,11 +129,16 @@ namespace Commands
                 if(immediate)
                     character.isVisible = true;
                 else 
-                    character.Show();
+                    character.Show(speed);
             }
 
             if (!immediate)
             {
+                CommandManager.Instance.AddTerminationActionToCurrentProcess(() => 
+                { 
+                    foreach(Character character in chacarters)
+                        character.isVisible = true;
+                });
                 while (chacarters.Any(c => c.isShowing))
                     yield return null;
             }
@@ -123,6 +148,7 @@ namespace Commands
         {
             List<Character> chacarters = new List<Character>();
             bool immediate = false;
+            float speed = 1f;
 
             foreach (string s in data)
             {
@@ -138,6 +164,7 @@ namespace Commands
             var parameters = ConvertDataToParameters(data);
 
             parameters.TryGetValue(Param_Immediate, out immediate, defaultValue: false);
+            parameters.TryGetValue(Param_Speed, out speed, defaultValue: 1f);
 
             //call the logic on all the character
             foreach (Character character in chacarters)
@@ -145,15 +172,121 @@ namespace Commands
                 if (immediate)
                     character.isVisible = false;
                 else
-                    character.Hide();
+                    character.Hide(speed);
             }
 
             if (!immediate)
             {
+                CommandManager.Instance.AddTerminationActionToCurrentProcess(() =>
+                {
+                    foreach (Character character in chacarters)
+                        character.isVisible = false;
+                });
+
                 while (chacarters.Any(c => c.isHidding))
                     yield return null;
             }
         }
 
+        #region BASE CHARACTERS COMMANDS
+
+        public static IEnumerator Show(string[] data)
+        {
+            Character character = CharacterManager.Instance.GetCharacter(data[0]);
+
+            if(character == null)
+                yield break;
+
+            bool immediate  = false;
+            var parameters = ConvertDataToParameters(data);
+
+            parameters.TryGetValue(new string[] { "-i", "-immediate" }, out immediate, defaultValue: false);
+
+            if (immediate)
+                character.isVisible = true;
+            else
+            {
+                //A long process should have a stop action to cancel out the coroutine and run logic that should complete this command  
+                CommandManager.Instance.AddTerminationActionToCurrentProcess(() => { if (character != null) character.isVisible = true; });
+
+                yield return character.Show();
+            }
+
+        }
+
+        public static IEnumerator Hide(string[] data)
+        {
+            Character character = CharacterManager.Instance.GetCharacter(data[0]);
+
+            if (character == null)
+                yield break;
+
+            bool immediate = false;
+            var parameters = ConvertDataToParameters(data);
+
+            parameters.TryGetValue(new string[] { "-i", "-immediate" }, out immediate, defaultValue: false);
+
+            if (immediate)
+                character.isVisible = false;
+            else
+            {
+                //A long process should have a stop action to cancel out the coroutine and run logic that should complete this command  
+                CommandManager.Instance.AddTerminationActionToCurrentProcess(() => { if (character != null) character.isVisible = false; });
+
+                yield return character.Hide();
+            }
+        }
+
+        public static void SetPriority(string[] data)
+        {
+            Character character = CharacterManager.Instance.GetCharacter(data[0], creatIfDoesNotAxist: false);
+            int priority;
+
+            if (character == null || data.Length < 2)
+            {
+                return;
+            }
+
+            if (!int.TryParse(data[1], out priority))
+                priority = 0;
+
+            character.SetPriority(priority);
+        }
+
+        public static IEnumerator SetColor(string[] data)
+        {
+            Character character = CharacterManager.Instance.GetCharacter(data[0], creatIfDoesNotAxist: false);
+            string colorName;
+            float speed;
+            bool immadiate;
+
+            if (character == null || data.Length < 2)
+                yield break;
+
+            var parameters  = ConvertDataToParameters(data);
+
+            //try to get color Name
+            parameters.TryGetValue(new string[] { "-c", "-color" }, out colorName);
+
+            //try to get speed
+            bool specifiedSpeed = parameters.TryGetValue(Param_Speed, out speed, defaultValue: 1f);
+
+            //try to get immadiate
+            parameters.TryGetValue(Param_Immediate, out immadiate, defaultValue: false);
+
+            //get color
+            Color color = Color.white;
+            color = color.GetColorFromName(colorName);
+
+            if(immadiate)
+                character.SetColor(color);
+            else
+            {
+                CommandManager.Instance.AddTerminationActionToCurrentProcess(() => { character?.SetColor(color); });
+                character.TransisitioColor(color, speed);
+            }
+            yield break;
+        }
+        #endregion
     }
 }

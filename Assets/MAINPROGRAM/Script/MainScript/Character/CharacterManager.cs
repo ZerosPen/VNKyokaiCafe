@@ -54,6 +54,8 @@ namespace Characters
             return null;
         }
 
+        public bool HasChraracter(string characterName) => characters.ContainsKey(characterName.ToLower());
+
         public Character createChracter(string characterName, bool revealAfterCreation = false)
         {
             //check you are making duplic character

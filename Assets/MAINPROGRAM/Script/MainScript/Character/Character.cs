@@ -79,7 +79,7 @@ namespace Characters
 
         public void UpdateTextCostumizationOnScreen() => dialogController.ApplySpeakerDataToDialogContainer(config);
 
-        public virtual Coroutine Show()
+        public virtual Coroutine Show(float speedMultiplier = 1f)
         {
             if (isShowing)
                 return co_Showing;
@@ -87,11 +87,11 @@ namespace Characters
             if (isHidding)
                 characterManager.StopCoroutine(co_hiding);
 
-            co_Showing = characterManager.StartCoroutine(ShowOrHidingCharacter(true));
+            co_Showing = characterManager.StartCoroutine(ShowOrHidingCharacter(true, speedMultiplier));
             return co_Showing;
         }
 
-        public virtual Coroutine Hide()
+        public virtual Coroutine Hide(float speedMultiplier = 1f)
         {
             if (isHidding)
                 return co_hiding;
@@ -99,11 +99,11 @@ namespace Characters
             if (isShowing)
                 characterManager.StopCoroutine(co_Showing);
 
-            co_hiding = characterManager.StartCoroutine(ShowOrHidingCharacter(false));
+            co_hiding = characterManager.StartCoroutine(ShowOrHidingCharacter(false, speedMultiplier));
             return co_hiding;
         }
 
-        public virtual IEnumerator ShowOrHidingCharacter(bool show)
+        public virtual IEnumerator ShowOrHidingCharacter(bool show, float speedMultiplier = 1f)
         {
             Debug.Log("Show/Hide cannot be called from a base charType");
             yield return null;

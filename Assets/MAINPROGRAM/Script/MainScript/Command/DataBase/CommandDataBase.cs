@@ -10,7 +10,7 @@ namespace Commands
     {
         private Dictionary<string, Delegate> database = new Dictionary<string, Delegate>();
 
-        public bool hasCommand(string commandName) => database.ContainsKey(commandName);
+        public bool hasCommand(string commandName) => database.ContainsKey(commandName.ToLower());
 
         public void addCommand(string commandName, Delegate command)
         {
