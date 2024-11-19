@@ -145,13 +145,16 @@ namespace Characters
             co_ChangeColor = null;
         }
 
-        public override IEnumerator HighLighting(bool highlight, float speedMultiplier)
+        public override IEnumerator HighLighting(float speedMultiplier, bool immadiate = false)
         {
             Color targerColor = displayColor;
 
             foreach (CharacterSpriteLayer layer in layers)
             {
-                layer.TransisitioColor(targerColor, speedMultiplier);
+                if (immadiate)
+                    layer.SetColor(displayColor);
+                else
+                    layer.TransisitioColor(targerColor, speedMultiplier);
             }
 
             yield return null;

@@ -11,6 +11,6 @@ namespace Commands
             // Implementation goes here
         }
 
-        public static CommandParameters ConvertDataToParameters(string[] data) => new CommandParameters(data);
+        public static CommandParameters ConvertDataToParameters(string[] data, int startIndex = 0) => new CommandParameters(data, startIndex);
     }
 }

@@ -195,7 +195,7 @@ namespace Characters
             yield return null;
         }
 
-        public Coroutine HighLight(float speed = 1f)
+        public Coroutine HighLight(float speed = 1f, bool immadiate = false)
         {
             if(isHighLighting)
                 return co_highLighting;
@@ -204,11 +204,11 @@ namespace Characters
                 characterManager.StopCoroutine(co_highLighting);
 
             HighLighted = true;
-            co_highLighting = characterManager.StartCoroutine(HighLighting(HighLighted, speed));
+            co_highLighting = characterManager.StartCoroutine(HighLighting(speed, immadiate));
             return co_highLighting;
 
         }
-        public Coroutine UnHighLight(float speed = 1f)
+        public Coroutine UnHighLight(float speed = 1f, bool immadiate = false)
         {
             if (isUnHighLighting)
                 return co_highLighting;
@@ -217,11 +217,11 @@ namespace Characters
                 characterManager.StopCoroutine(co_highLighting);
 
             HighLighted = false;
-            co_highLighting = characterManager.StartCoroutine(HighLighting(HighLighted, speed));
+            co_highLighting = characterManager.StartCoroutine(HighLighting(speed, immadiate));
             return co_highLighting;
         }
 
-        public virtual IEnumerator HighLighting(bool highlight, float speedMultiplier)
+        public virtual IEnumerator HighLighting(float speedMultiplier, bool immadiate)
         {
             Debug.Log("Highlight is not available on this character type!");
             yield return null;
